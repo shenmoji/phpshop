@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>无标题文档</title>
+    <link href="{:config('admin_static')}/css/style.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="{:config('admin_static')}/js/jquery.js"></script>
+    <script type="text/javascript" src="/plugin/layer/layer.js"></script>
+    <script type="text/javascript">
+    $(document).ready(function() {
+        $(".click").click(function() {
+            $(".tip").fadeIn(200);
+        });
+
+        $(".tiptop a").click(function() {
+            $(".tip").fadeOut(200);
+        });
+
+        $(".sure").click(function() {
+            $(".tip").fadeOut(100);
+        });
+
+        $(".cancel").click(function() {
+            $(".tip").fadeOut(100);
+        });
+
+    });
+    </script>
+</head>
+
+<body>
+    <div class="place">
+        <span>位置：</span>
+        <ul class="placeul">
+            <li><a href="#">首页</a></li>
+            <li><a href="#">数据表</a></li>
+            <li><a href="#">基本内容</a></li>
+        </ul>
+    </div>
+    <div class="rightinfo">
+        <div class="tools">
+            <ul class="toolbar">
+                <li><span><img src="{:config('admin_static')}/images/t01.png" /></span>添加</li>
+                <li><span><img src="{:config('admin_static')}/images/t02.png" /></span>修改</li>
+                <li><span><img src="{:config('admin_static')}/images/t03.png" /></span>删除</li>
+                <li><span><img src="{:config('admin_static')}/images/t04.png" /></span>统计</li>
+            </ul>
+        </div>
+        <table class="tablelist">
+            <thead>
+                <tr>
+                    <th>
+                        <input name="" type="checkbox" value="" id="checkAll" />
+                    </th>
+                    <th>商品名称</th>
+                    <th>商品价格</th>
+                    <th>商品库存</th>
+                    <th>图片</th>
+                    <th>是否热卖</th>
+                    <th>操作</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {volist name="lists" id="list"}
+                <tr>
+                    <td>
+                        <input name="" type="checkbox" value="" />
+                    </td>
+                    <td>{$list['goods_name']}</td>
+                    <td>{$list['goods_price']}</td>
+                    <td>{$list['goods_number']}</td>
+                    <td><img src="" alt="暂无图片"></td>
+                   <td> <a href="javascript:;" class="abcd" is_hot="{$list['is_hot']}" goods_id="{$list['goods_id']}">
+                    <img  src="{:config('admin_static')}/images/{$list['is_hot']==1?'yes':'no'}.gif" > </a></td>
+                   
+                    
+
+    <td>
+        <a href="javascript:;" goods_id="{$list['goods_id']}" class="showContent tablelink">查看详情</a>
+        <a href="javascript:;" goods_id="{$list['goods_id']}"   class="delCat tablelink"> 加入回收站</a>
+     </td>
+                </tr>
+               {/volist}
+            </tbody>
+        </table>
+        <div class="pagin">
+           
+        </div>
+        <div class="tip">
+            <div class="tiptop"><span>提示信息</span>
+                <a></a>
+            </div>
+            <div class="tipinfo">
+                <span><img src="{:config('admin_static')}/images/ticon.png" /></span>
+                <div class="tipright">
+                    <p>是否确认对信息的修改 ？</p>
+                    <cite>如果是请点击确定按钮 ，否则请点取消。</cite>
+                </div>
+            </div>
+            <div class="tipbtn">
+                <input name="" type="button" class="sure" value="确定" />&nbsp;
+                <input name="" type="button" class="cancel" value="取消" />
+            </div>
+        </div>
+    </div>
+    <img src="{:config('admin_static')}/images/yes.gif">
+    <img src="{:config('admin_static')}/images/no.gif">
+    <script type="text/javascript"></script>
+    <script type="text/javascript">
+        $('.tablelist tbody tr:odd').addClass('odd');
+    </script>
+    <script type="text/javascript">
+       $(".delCat").click(function(){
+           if(confirm("确定删除?") == false){
+               return false;
+           }
+           var _self = $(this);
+           var goods_id = _self.attr('goods_id');
+           // alert(type_id);
+           $.get("{:url('admin/category/ajaxdel')}",{"goods_id":goods_id},function(data){
+               if(data.code == 200){
+                   alert(data.message);
+                   _self.parent().parent().remove();
+               }else{
+                   alert(data.message);
+               }
+           },'json')
+       });
+
+       //ajax查看商品详情
+       $(".showContent").click(function(){
+        var goods_id = $(this).attr('goods_id');
+        $.get("{:url('admin/goods/ajaxGetContent')}",{"goods_id":goods_id},function(json){
+            // console.log(data);
+            layer.open({
+                title:json.goods_name,
+                type:1,
+                skin:'layui-layer-rim',
+                area:['720px','440px'],
+                content:"<div style='padding:5px'>"+json.goods.goods_desc+"</div>"
+            });
+        },'json');
+       });
+
+    </script>
+</body>
+<script type="text/javascript">
+   $(".abcd").click(function(){
+        var is_hot = $(this).attr('is_hot');
+        var goods_id = $(this).attr("goods_id");
+        var _self = $(this);
+        alert(is_hot);
+        $.get("{:url('admin/goods/ajaximg')}",{"is_hot":is_hot,"goods_id":goods_id},function(json){
+            console.log(json);
+            if(json.status == 200){
+                _self.attr('is_hot',json.is_hot); 
+                _self.html("<img src="+"{:config('admin_static')}/images/"+(json.is_hot==1?'yes':'no')+".gif"+" >");
+                // _self.html("<img src="+"{:config('admin_static')}/images/{$list['is_hot']==0?'yes':'no'}.gif"+" >");
+            }else{
+                alert(json.message);
+            }
+        },'json')
+    });
+</script>
+</html>
